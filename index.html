@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Kadachi | Inteligencia Artificial para tu Seguridad Digital</title>
+ <style>
+ :root {
+ --primary-dark: #0A1128;
+ --primary-blue: #1D4E89;
+ --accent-blue: #00B4D8;
+ --white: #FFFFFF;
+ --light-gray: #F4F7F6;
+ --text-dark: #333333;
+ }
+ 
+ * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+ html { scroll-behavior: smooth; }
+
+ body { background-color: var(--white); color: var(--text-dark); line-height: 1.6; overflow-x: hidden; }
+
+ /* ===== ANIMACIONES ===== */
+ @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+ @keyframes floatSlow { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-25px) rotate(3deg); } }
+ @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(0,180,216,0.3); } 50% { box-shadow: 0 0 45px rgba(0,180,216,0.65); } 100% { box-shadow: 0 0 20px rgba(0,180,216,0.3); } }
+ @keyframes scanline { 0% { top: 0; } 100% { top: 100%; } }
+ @keyframes typing { from { opacity: 0.3; } to { opacity: 1; } }
+
+ /* ===== NAVBAR ===== */
+ nav {
+ display: flex; justify-content: space-between; align-items: center;
+ padding: 15px 5%;
+ background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+ box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+ position: sticky; top: 0; z-index: 1000;
+ }
+ .logo-container { display: flex; align-items: center; gap: 12px; }
+ .logo-img { width: 50px; height: 50px; border-radius: 50%; transition: transform 0.5s; }
+ .logo-container:hover .logo-img { transform: rotate(360deg); }
+ .logo-text h1 { font-size: 24px; color: var(--primary-dark); font-weight: 800; }
+ .logo-text p { font-size: 9px; color: var(--accent-blue); letter-spacing: 2.5px; font-weight: bold; }
+ .nav-links { display: flex; align-items: center; }
+ .nav-links a { text-decoration: none; color: var(--text-dark); margin-left: 20px; font-weight: 600; font-size: 0.95rem; transition: color 0.3s; }
+ .nav-links a:hover { color: var(--accent-blue); }
+ .btn-primary {
+ background: var(--primary-dark); color: var(--white) !important;
+ padding: 10px 24px; border-radius: 30px; border: 2px solid var(--primary-dark); transition: all 0.3s;
+ }
+ .btn-primary:hover { background: transparent; color: var(--primary-dark) !important; }
+ .hamburger { display: none; background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--primary-dark); }
+
+ /* ===== HERO ===== */
+ .hero {
+ background: radial-gradient(circle at 50% 50%, var(--primary-blue) 0%, var(--primary-dark) 100%);
+ color: var(--white); padding: 70px 5% 110px; text-align: center; position: relative; overflow: hidden;
+ }
+ .hero::before {
+ content: ''; position: absolute; inset: 0;
+ background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+ linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+ background-size: 50px 50px;
+ }
+ /* Imágenes decorativas flotantes de fondo */
+ .bg-float-img {
+ position: absolute; opacity: 0.22; pointer-events: none;
+ filter: drop-shadow(0 0 20px rgba(0,180,216,0.4));
+ }
+ .bg-shield { width: 220px; top: 8%; left: 4%; animation: floatSlow 7s ease-in-out infinite; }
+ .bg-network { width: 260px; bottom: 2%; right: 3%; animation: floatSlow 9s ease-in-out infinite reverse; }
+ .hero-logo-container { margin-bottom: 25px; display: flex; justify-content: center; position: relative; z-index: 2; }
+ .hero-logo { width: 130px; height: 130px; border-radius: 50%; background: var(--white); padding: 10px; animation: float 4s ease-in-out infinite, pulseGlow 3s infinite; }
+ .hero h2 { font-size: 3.2rem; margin-bottom: 20px; line-height: 1.1; position: relative; z-index: 2; text-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+ .hero p { font-size: 1.25rem; max-width: 700px; margin: 0 auto 35px; opacity: 0.9; position: relative; z-index: 2; }
+ .btn-cta {
+ background: var(--accent-blue); color: var(--white); padding: 16px 45px; border-radius: 35px;
+ text-decoration: none; font-size: 1.15rem; font-weight: bold;
+ box-shadow: 0 10px 25px rgba(0,180,216,0.4); transition: all 0.3s;
+ display: inline-block; border: 2px solid var(--accent-blue); position: relative; z-index: 2;
+ }
+ .btn-cta:hover { transform: translateY(-5px); background: var(--white); color: var(--primary-dark); border-color: var(--white); }
+
+ /* ===== SECCIONES GENERALES ===== */
+ section { padding: 90px 5%; position: relative; overflow: hidden; }
+ .section-title { text-align: center; font-size: 2.4rem; color: var(--primary-dark); margin-bottom: 55px; font-weight: 800; position: relative; }
+ .section-title::after { content: ''; display: block; width: 80px; height: 4px; background: var(--accent-blue); margin: 15px auto 0; border-radius: 2px; }
+
+ /* ===== CÓMO FUNCIONA ===== */
+ .steps-container { display: flex; gap: 30px; flex-wrap: wrap; }
+ .step-card {
+ flex: 1; min-width: 280px; background: var(--white); padding: 40px 30px; border-radius: 20px;
+ text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.05); border: 1px solid #eee;
+ transition: all 0.4s ease; position: relative; overflow: hidden;
+ }
+ .step-card::before {
+ content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+ background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue));
+ transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
+ }
+ .step-card:hover { transform: translateY(-15px); box-shadow: 0 25px 50px rgba(0,180,216,0.15); }
+ .step-card:hover::before { transform: scaleX(1); }
+ .step-icon { font-size: 3rem; margin-bottom: 20px; display: block; }
+ .step-card h3 { color: var(--primary-dark); margin-bottom: 15px; font-size: 1.5rem; }
+ .funciona-img { display: flex; justify-content: center; margin-top: 50px; }
+ .funciona-img img { max-width: 100%; width: 500px; border-radius: 20px; box-shadow: 0 20px 50px rgba(10,17,40,0.2); animation: float 6s ease-in-out infinite; }
+
+ /* ===== EXPOSICIÓN ===== */
+ #exposicion { background: var(--light-gray); }
+ .expo-container { display: flex; align-items: center; gap: 50px; flex-wrap: wrap; position: relative; z-index: 2; }
+ .expo-text { flex: 1; min-width: 300px; }
+ .expo-tag { display: inline-block; background: rgba(0,180,216,0.1); color: var(--primary-blue); padding: 8px 20px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; margin-bottom: 20px; letter-spacing: 1px; }
+ .expo-text h2 { font-size: 2.6rem; color: var(--primary-dark); line-height: 1.15; margin-bottom: 25px; }
+ .expo-text h2 span { color: var(--primary-blue); }
+ .expo-text > p { font-size: 1.15rem; color: #555; margin-bottom: 30px; }
+ .expo-features { list-style: none; margin-bottom: 35px; }
+ .expo-features li { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; font-size: 1.05rem; font-weight: 600; }
+ .check-icon { width: 30px; height: 30px; background: var(--accent-blue); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+ .expo-visual { flex: 1; min-width: 300px; display: flex; justify-content: center; flex-direction: column; gap: 25px; }
+ .expo-visual .side-img { width: 100%; border-radius: 20px; box-shadow: 0 25px 60px rgba(10,17,40,0.25); }
+ .mockup-app { background: var(--white); width: 100%; max-width: 400px; border-radius: 25px; box-shadow: 0 30px 60px rgba(10,17,40,0.2); overflow: hidden; border: 1px solid #eee; position: relative; margin: 0 auto; }
+ .mockup-header { background: var(--primary-dark); color: var(--white); padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+ .mockup-header h4 { font-size: 1.1rem; }
+ .mockup-header .status { color: var(--accent-blue); font-size: 0.85rem; font-weight: bold; }
+ .mockup-body { padding: 25px; }
+ .scan-line { width: 100%; height: 2px; background: var(--accent-blue); position: absolute; left: 0; box-shadow: 0 0 10px var(--accent-blue); animation: scanline 2s infinite linear; }
+ .account-row { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
+ .account-row:last-child { border-bottom: none; }
+ .acc-info { display: flex; align-items: center; gap: 15px; }
+ .acc-icon { width: 40px; height: 40px; background: #eee; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; }
+ .acc-name { font-weight: bold; }
+ .acc-risk { font-size: 0.85rem; }
+ .risk-badge { padding: 6px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+ .risk-low { background: #d4edda; color: #155724; }
+ .risk-med { background: #fff3cd; color: #856404; }
+ .risk-high { background: #f8d7da; color: #721c24; }
+
+ /* ===== DEMO INTERACTIVO ===== */
+ #demo {
+ background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
+ color: var(--white);
+ }
+ #demo .bg-chess { width: 280px; top: 5%; right: -60px; opacity: 0.15; position: absolute; animation: floatSlow 10s ease-in-out infinite; }
+ #demo .bg-magnify { width: 260px; bottom: 3%; left: -40px; opacity: 0.15; position: absolute; animation: floatSlow 8s ease-in-out infinite reverse; }
+ #demo .section-title { color: var(--white); }
+ .demo-subtitle { text-align: center; font-size: 1.15rem; opacity: 0.9; max-width: 650px; margin: -30px auto 45px; position: relative; z-index: 2; }
+ .demo-box {
+ background: rgba(255,255,255,0.08); backdrop-filter: blur(15px);
+ border: 1px solid rgba(255,255,255,0.15); border-radius: 25px;
+ max-width: 750px; margin: 0 auto; padding: 40px; position: relative; z-index: 2;
+ }
+ .demo-form { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+ .form-group { display: flex; flex-direction: column; }
+ .form-group.full { grid-column: span 2; }
+ .form-group label { margin-bottom: 8px; font-weight: bold; font-size: 0.95rem; color: var(--accent-blue); }
+ .form-group input, .form-group select {
+ padding: 14px 16px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2);
+ background: rgba(255,255,255,0.1); color: var(--white); font-size: 1rem; outline: none; transition: border 0.3s;
+ }
+ .form-group input::placeholder { color: rgba(255,255,255,0.5); }
+ .form-group input:focus, .form-group select:focus { border-color: var(--accent-blue); }
+ .form-group select option { color: var(--text-dark); }
+ .radio-group { display: flex; gap: 15px; flex-wrap: wrap; }
+ .radio-group label {
+ display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1);
+ padding: 12px 18px; border-radius: 12px; cursor: pointer; transition: background 0.3s; color: var(--white); font-weight: normal;
+ }
+ .radio-group label:hover { background: rgba(0,180,216,0.25); }
+ .demo-btn {
+ grid-column: span 2; background: var(--accent-blue); color: var(--white); border: none;
+ padding: 17px; border-radius: 35px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+ box-shadow: 0 8px 25px rgba(0,180,216,0.4); transition: all 0.3s; margin-top: 10px;
+ }
+ .demo-btn:hover { transform: translateY(-3px); background: var(--white); color: var(--primary-dark); }
+ /* Terminal de análisis */
+ .analysis-terminal {
+ display: none; background: rgba(0,0,0,0.55); border-radius: 15px; padding: 25px;
+ font-family: 'Courier New', monospace; margin-top: 25px; border: 1px solid rgba(0,180,216,0.3); min-height: 120px;
+ }
+ .analysis-terminal p { margin-bottom: 6px; font-size: 0.95rem; color: #7CFC98; animation: typing 0.4s; }
+ .analysis-terminal p.warn { color: #FACC15; }
+ /* Resultado */
+ .demo-result { display: none; margin-top: 25px; text-align: center; animation: typing 0.6s; }
+ .score-circle {
+ width: 130px; height: 130px; border-radius: 50%; margin: 0 auto 20px;
+ display: flex; flex-direction: column; justify-content: center; align-items: center;
+ font-size: 2.6rem; font-weight: 900; border: 6px solid; position: relative;
+ }
+ .score-circle small { font-size: 0.8rem; font-weight: normal; }
+ .score-green { border-color: #4ADE80; color: #4ADE80; box-shadow: 0 0 30px rgba(74,222,128,0.4); }
+ .score-yellow { border-color: #FACC15; color: #FACC15; box-shadow: 0 0 30px rgba(250,204,21,0.4); }
+ .score-red { border-color: #F87171; color: #F87171; box-shadow: 0 0 30px rgba(248,113,113,0.4); }
+ .demo-result h3 { font-size: 1.6rem; margin-bottom: 15px; }
+ .rec-list { text-align: left; background: rgba(255,255,255,0.08); border-radius: 15px; padding: 20px 25px; max-width: 520px; margin: 0 auto; }
+ .rec-list li { margin-bottom: 10px; padding-left: 5px; }
+ .demo-reset { background: none; border: 2px solid var(--white); color: var(--white); padding: 10px 30px; border-radius: 30px; margin-top: 20px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+ .demo-reset:hover { background: var(--white); color: var(--primary-dark); }
+
+ /* ===== PRECIOS / COMPRA ===== */
+ #precios { background: var(--white); }
+ #precios .bg-hands { width: 300px; top: 10%; left: -100px; opacity: 0.08; position: absolute; animation: floatSlow 9s ease-in-out infinite; }
+ .currency-selector { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap; position: relative; z-index: 2; }
+ .currency-selector label { font-weight: bold; color: var(--primary-dark); }
+ .currency-selector select {
+ padding: 12px 20px; border-radius: 12px; border: 2px solid var(--accent-blue);
+ font-size: 1rem; font-weight: bold; color: var(--primary-dark); cursor: pointer; background: var(--white);
+ }
+ .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 30px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; }
+ .plan-card {
+ background: var(--white); border-radius: 25px; padding: 40px 30px; text-align: center;
+ border: 2px solid #e8e8e8; transition: all 0.4s; position: relative;
+ }
+ .plan-card:hover { transform: translateY(-12px); box-shadow: 0 25px 50px rgba(10,17,40,0.12); }
+ .plan-card.featured { border-color: var(--accent-blue); transform: scale(1.05); box-shadow: 0 25px 60px rgba(0,180,216,0.2); background: linear-gradient(180deg, var(--white) 60%, #e8f9fd 100%); }
+ .plan-card.featured:hover { transform: scale(1.05) translateY(-12px); }
+ .plan-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--accent-blue); color: white; padding: 6px 22px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; letter-spacing: 1px; }
+ .plan-icon { font-size: 3rem; margin-bottom: 15px; }
+ .plan-card h3 { font-size: 1.5rem; color: var(--primary-dark); margin-bottom: 10px; }
+ .plan-price { margin: 20px 0; }
+ .plan-price .amount { font-size: 3rem; font-weight: 900; color: var(--primary-dark); }
+ .plan-price .currency-code { font-size: 1rem; color: #888; font-weight: bold; }
+ .plan-price .period { display: block; color: #999; font-size: 0.9rem; }
+ .plan-features { list-style: none; margin-bottom: 30px; text-align: left; }
+ .plan-features li { padding: 10px 0; border-bottom: 1px solid #f0f0f0; display: flex; gap: 10px; align-items: flex-start; }
+ .plan-features li:last-child { border: none; }
+ .plan-btn { display: block; text-align: center; padding: 15px; border-radius: 35px; text-decoration: none; font-weight: bold; font-size: 1.05rem; transition: all 0.3s; }
+ .plan-btn-outline { border: 2px solid var(--primary-dark); color: var(--primary-dark); }
+ .plan-btn-outline:hover { background: var(--primary-dark); color: var(--white); }
+ .plan-btn-full { background: var(--accent-blue); color: var(--white); box-shadow: 0 8px 25px rgba(0,180,216,0.35); }
+ .plan-btn-full:hover { transform: translateY(-3px); background: var(--primary-blue); color: var(--white); }
+ .prices-note { text-align: center; margin-top: 35px; font-size: 0.85rem; color: #999; position: relative; z-index: 2; }
+
+ /* ===== VALORES ===== */
+ #valores { background: var(--light-gray); }
+ .valores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
+ .valor-item { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); border-left: 5px solid var(--accent-blue); transition: transform 0.3s; }
+ .valor-item:hover { transform: scale(1.03); }
+ .valor-item h4 { color: var(--primary-blue); margin-bottom: 12px; font-size: 1.25rem; }
+ .valores-banner { display: flex; justify-content: center; margin-top: 50px; gap: 30px; flex-wrap: wrap; }
+ .valores-banner img { width: 320px; max-width: 100%; border-radius: 20px; box-shadow: 0 20px 45px rgba(10,17,40,0.15); animation: float 6s ease-in-out infinite; }
+ .valores-banner img:last-child { animation-delay: 1.5s; }
+
+ /* ===== FODA ===== */
+ #foda {
+ background-color: var(--primary-dark); color: var(--white);
+ background-image: linear-gradient(rgba(10,17,40,0.92), rgba(10,17,40,0.96)), url("img/fondo.png");
+ background-size: cover; background-attachment: fixed;
+ }
+ #foda .section-title { color: var(--white); }
+ .foda-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+ .foda-card { padding: 30px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; backdrop-filter: blur(5px); }
+ .foda-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-5px); }
+ .foda-card h4 { margin-bottom: 20px; padding-bottom: 15px; font-size: 1.35rem; border-bottom: 2px solid rgba(255,255,255,0.1); }
+ .foda-card ul { list-style: none; }
+ .foda-card li { margin-bottom: 12px; display: flex; gap: 10px; }
+ .text-green { color: #4ADE80; } .text-red { color: #F87171; } .text-blue { color: #60A5FA; } .text-yellow { color: #FACC15; }
+
+ /* ===== MISIÓN Y VISIÓN ===== */
+ .mv-container { display: flex; gap: 40px; flex-wrap: wrap; }
+ .mv-box { flex: 1; min-width: 300px; padding: 45px; border-radius: 20px; position: relative; overflow: hidden; }
+ .mv-box:first-child { background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue)); color: var(--white); box-shadow: 0 20px 40px rgba(10,17,40,0.2); }
+ .mv-box:last-child { background: var(--light-gray); border: 2px solid #e0e0e0; }
+ .mv-box h3 { font-size: 1.9rem; margin-bottom: 20px; }
+ .mv-box:first-child h3 { color: var(--accent-blue); }
+ .mv-box:last-child h3 { color: var(--primary-dark); }
+ .mv-img { width: 100%; border-radius: 15px; margin-top: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.25); }
+
+ /* ===== CONTACTO ===== */
+ #contacto { background: radial-gradient(circle at top right, var(--primary-blue), var(--primary-dark)); color: var(--white); text-align: center; }
+ #contacto .section-title { color: var(--white); }
+ #contacto .bg-collab { width: 320px; bottom: 0; left: -80px; opacity: 0.12; position: absolute; animation: floatSlow 10s ease-in-out infinite; }
+ .contact-info { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 50px; position: relative; z-index: 2; }
+ .contact-card {
+ background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 40px;
+ border-radius: 20px; min-width: 300px; flex: 1; max-width: 380px; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;
+ }
+ .contact-card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.15); border-color: var(--accent-blue); }
+ .contact-card .icon { font-size: 3rem; margin-bottom: 20px; display: block; }
+ .contact-card h3 { color: var(--accent-blue); margin-bottom: 15px; font-size: 1.4rem; }
+ .contact-card p { font-size: 1.15rem; margin-bottom: 5px; }
+ .contact-card a { color: var(--white); text-decoration: none; transition: color 0.3s; }
+ .contact-card a:hover { color: var(--accent-blue); }
+
+ /* ===== FOOTER ===== */
+ footer { background: var(--primary-dark); color: rgba(255,255,255,0.6); text-align: center; padding: 40px 5%; border-top: 1px solid rgba(255,255,255,0.1); }
+ footer .logo-text h1 { color: var(--white); }
+ footer .logo-text { display: inline-block; margin-bottom: 15px; }
+
+ /* ===== CHATBOT ===== */
+ .chatbot-btn {
+ position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; border-radius: 50%;
+ background: var(--accent-blue); border: none; cursor: pointer; font-size: 1.8rem; z-index: 2000;
+ box-shadow: 0 8px 30px rgba(0,180,216,0.5); animation: pulseGlow 2.5s infinite; transition: transform 0.3s;
+ }
+ .chatbot-btn:hover { transform: scale(1.1); }
+ .chatbot-window {
+ display: none; position: fixed; bottom: 105px; right: 25px; width: 350px; max-width: calc(100vw - 40px);
+ height: 470px; max-height: 65vh; background: var(--white); border-radius: 20px;
+ box-shadow: 0 25px 70px rgba(10,17,40,0.35); z-index: 2000; overflow: hidden;
+ flex-direction: column; border: 1px solid #eee; animation: typing 0.3s;
+ }
+ .chatbot-window.open { display: flex; }
+ .chat-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue)); color: white; padding: 18px; display: flex; align-items: center; gap: 12px; }
+ .chat-header img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-blue); }
+ .chat-header .chat-title strong { display: block; font-size: 1rem; }
+ .chat-header .chat-title span { font-size: 0.75rem; color: #7CFC98; }
+ .chat-header .close-chat { margin-left: auto; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+ .chat-body { flex: 1; padding: 18px; overflow-y: auto; background: var(--light-gray); }
+ .msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; margin-bottom: 12px; font-size: 0.92rem; line-height: 1.45; animation: typing 0.3s; white-space: pre-line; }
+ .msg-bot { background: var(--white); border-bottom-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+ .msg-user { background: var(--accent-blue); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
+ .typing-dots { display: inline-flex; gap: 4px; padding: 5px 0; }
+ .typing-dots span { width: 7px; height: 7px; background: #999; border-radius: 50%; animation: blink 1.2s infinite; }
+ .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+ .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+ @keyframes blink { 0%,100% { opacity: 0.25; } 50% { opacity: 1; } }
+ .chat-suggestions { padding: 10px 12px; background: var(--white); border-top: 1px solid #eee; display: flex; gap: 8px; overflow-x: auto; }
+ .chat-suggestions button { flex-shrink: 0; background: rgba(0,180,216,0.1); color: var(--primary-blue); border: 1px solid rgba(0,180,216,0.3); border-radius: 20px; padding: 7px 14px; font-size: 0.8rem; cursor: pointer; font-weight: 600; }
+ .chat-suggestions button:hover { background: var(--accent-blue); color: white; }
+ .chat-input { display: flex; padding: 12px; background: var(--white); border-top: 1px solid #eee; gap: 10px; }
+ .chat-input input { flex: 1; padding: 12px 16px; border-radius: 25px; border: 2px solid #e0e0e0; outline: none; font-size: 0.95rem; }
+ .chat-input input:focus { border-color: var(--accent-blue); }
+ .chat-input button { width: 45px; height: 45px; border-radius: 50%; background: var(--accent-blue); border: none; color: white; font-size: 1.1rem; cursor: pointer; transition: transform 0.2s; }
+ .chat-input button:hover { transform: scale(1.1); }
+
+ /* ===== RESPONSIVE ===== */
+ @media (max-width: 768px) {
+ .hamburger { display: block; }
+ .nav-links {
+ display: none; position: absolute; top: 100%; left: 0; right: 0;
+ background: var(--white); flex-direction: column; padding: 20px 5%;
+ box-shadow: 0 15px 30px rgba(0,0,0,0.1); gap: 5px; align-items: flex-start;
+ }
+ .nav-links.open { display: flex; }
+ .nav-links a { margin: 8px 0; padding: 5px 0; }
+ .hero h2 { font-size: 2.2rem; }
+ .hero-logo { width: 105px; height: 105px; }
+ .section-title { font-size: 1.8rem; }
+ .expo-text h2 { font-size: 2rem; }
+ .demo-box { padding: 25px; }
+ .demo-form { grid-template-columns: 1fr; }
+ .form-group.full, .demo-btn { grid-column: span 1; }
+ .plan-card.featured { transform: none; }
+ .plan-card.featured:hover { transform: translateY(-12px); }
+ .mv-box { padding: 30px; }
+ .bg-shield, .bg-network, .bg-chess, .bg-magnify, .bg-hands, .bg-collab { display: none; }
+ section { padding: 60px 6%; }
+ }
+
+ /* ===== GALERÍA VISUAL KADACHI ===== */
+ #galeria {
+ background:
+ radial-gradient(circle at 10% 10%, rgba(0,180,216,0.10), transparent 28%),
+ linear-gradient(180deg, #f8fbfd 0%, var(--white) 100%);
+ }
+ .gallery-intro {
+ max-width: 720px; margin: -30px auto 45px; text-align: center;
+ color: #64748b; font-size: 1.05rem;
+ }
+ .visual-grid {
+ max-width: 1180px; margin: 0 auto; display: grid;
+ grid-template-columns: 1.2fr 0.9fr 0.9fr; grid-auto-rows: 245px; gap: 22px;
+ }
+ .visual-card {
+ position: relative; overflow: hidden; border-radius: 24px;
+ background: var(--primary-dark); box-shadow: 0 18px 45px rgba(10,17,40,0.12);
+ isolation: isolate; cursor: default;
+ }
+ .visual-card:first-child { grid-row: span 2; }
+ .visual-card img {
+ width: 100%; height: 100%; object-fit: cover; display: block;
+ opacity: 0.72; transition: transform 0.6s ease, opacity 0.4s ease;
+ }
+ .visual-card::after {
+ content: ''; position: absolute; inset: 0;
+ background: linear-gradient(180deg, rgba(10,17,40,0.02) 25%, rgba(10,17,40,0.92) 100%);
+ z-index: 1;
+ }
+ .visual-card:hover img { transform: scale(1.08); opacity: 0.9; }
+ .visual-card-content {
+ position: absolute; left: 26px; right: 26px; bottom: 24px; z-index: 2; color: white;
+ }
+ .visual-card-content span {
+ display: inline-flex; padding: 6px 12px; margin-bottom: 10px; border-radius: 20px;
+ background: rgba(0,180,216,0.20); border: 1px solid rgba(0,180,216,0.4);
+ color: #baf3ff; font-size: .78rem; font-weight: 800; letter-spacing: .7px;
+ }
+ .visual-card-content h3 { font-size: 1.35rem; margin-bottom: 6px; line-height: 1.2; }
+ .visual-card-content p { font-size: .92rem; opacity: .86; line-height: 1.45; }
+ .security-stats {
+ max-width: 1180px; margin: 35px auto 0; display: grid;
+ grid-template-columns: repeat(3, 1fr); gap: 18px;
+ }
+ .security-stat {
+ background: rgba(255,255,255,0.85); border: 1px solid rgba(29,78,137,.10);
+ border-radius: 18px; padding: 20px 24px; display: flex; align-items: center; gap: 14px;
+ box-shadow: 0 10px 25px rgba(10,17,40,.05);
+ }
+ .security-stat b { display:block; color: var(--primary-dark); font-size: 1.05rem; }
+ .security-stat small { color:#64748b; display:block; margin-top:2px; }
+ .stat-icon {
+ width: 46px; height:46px; border-radius:14px; display:grid; place-items:center;
+ background: rgba(0,180,216,.12); font-size:1.35rem; flex-shrink:0;
+ }
+ /* Mejora visual del FODA */
+ .foda-card { box-shadow: 0 15px 35px rgba(0,0,0,.12); }
+ .foda-card h4 { display:flex; align-items:center; gap:8px; }
+ .foda-card li { line-height:1.55; }
+ @media (max-width: 900px) {
+ .visual-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 250px; }
+ .visual-card:first-child { grid-row: span 1; grid-column: span 2; }
+ }
+ @media (max-width: 650px) {
+ .visual-grid { grid-template-columns: 1fr; grid-auto-rows: 250px; }
+ .visual-card:first-child { grid-column: span 1; }
+ .security-stats { grid-template-columns: 1fr; }
+ }
+
+ 
+        /* Ajustes de imágenes: proporción correcta y adaptación a móvil */
+        img { max-width: 100%; }
+        .logo-img, .hero-logo, .chat-header img { object-fit: contain; flex-shrink: 0; }
+        .funciona-img { width: 100%; padding: 0 12px; }
+        .funciona-img img { width: min(100%, 680px); height: auto; max-height: 440px; object-fit: contain; }
+        .expo-visual .side-img { display: block; width: 100%; max-height: 440px; height: auto; object-fit: contain; margin: 0 auto; }
+        .visual-card { min-width: 0; min-height: 220px; }
+        .visual-card img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+        .mv-img { display: block; width: 100%; max-height: 280px; height: auto; object-fit: contain; object-position: center; }
+        .valores-banner img { width: min(100%, 360px); height: auto; max-height: 300px; object-fit: contain; }
+        @media (max-width: 650px) {
+            .funciona-img img { max-height: 320px; }
+            .expo-visual { min-width: 0; width: 100%; }
+            .expo-visual .side-img { max-height: 340px; }
+            .visual-card { min-height: 240px; }
+            .mv-img { max-height: 220px; }
+        }
+
+    </style>
+</head>
+<body>
+
+ <!-- ===== NAVBAR ===== -->
+ <nav>
+ <div class="logo-container">
+ <img src="img/logo.png" alt="Logo Kadachi" class="logo-img">
+ <div class="logo-text">
+ <h1>KADACHI</h1>
+ <p>INTELIGENCIA ARTIFICIAL</p>
+ </div>
+ </div>
+ <button class="hamburger" onclick="toggleMenu()"></button>
+ <div class="nav-links" id="navLinks">
+ <a href="#inicio">Inicio</a>
+ <a href="#demo">Pruébala</a>
+ <a href="#precios">Precios</a>
+ <a href="#valores">Valores</a>
+ <a href="#contacto" class="btn-primary">Contáctanos</a>
+ </div>
+ </nav>
+
+ <!-- ===== HERO ===== -->
+ <div class="hero" id="inicio">
+ 
+ 
+ <div class="hero-logo-container">
+ <img src="img/logo.png" alt="Logo Kadachi" class="hero-logo">
+ </div>
+ <h2>Tú tienes el control.<br>Nosotros te damos la guía.</h2>
+ <p>No vendemos miedo, construimos paz mental. Kadachi es la IA que te ayuda a organizar y supervisar la seguridad de tus cuentas digitales, sin reemplazar tus decisiones.</p>
+ <a href="#demo" class="btn-cta"> Probar Demo Gratis</a>
+ </div>
+
+ <!-- ===== CÓMO FUNCIONA ===== -->
+ <section id="funciona">
+ <h2 class="section-title">¿Cómo funciona Kadachi?</h2>
+ <div class="steps-container">
+ <div class="step-card">
+ <span class="step-icon"></span>
+ <h3>1. Tú Registras</h3>
+ <p>Registra la información de las cuentas que deseas analizar. Tú decides qué datos compartir.</p>
+ </div>
+ <div class="step-card">
+ <span class="step-icon"></span>
+ <h3>2. La IA Analiza</h3>
+ <p>Kadachi evalúa los datos, detecta riesgos (contraseñas débiles, falta de 2FA) y prioriza las cuentas vulnerables.</p>
+ </div>
+ <div class="step-card">
+ <span class="step-icon"></span>
+ <h3>3. Tú Decides</h3>
+ <p>Recibes recomendaciones claras. El usuario mantiene el control total sobre qué acciones realizar.</p>
+ </div>
+ </div>
+ <div class="funciona-img">
+ <img src="img/analicis mejorado.png" alt="Proceso de evaluación: Identificar, Analizar y Mitigar">
+ </div>
+ </section>
+
+ <!-- ===== EXPOSICIÓN / VENTAS ===== -->
+ <section id="exposicion">
+ <div class="expo-container">
+ <div class="expo-text">
+ <span class="expo-tag"> LA SOLUCIÓN INTELIGENTE</span>
+ <h2>Más que un software, tu <span>aliado estratégico</span> en ciberseguridad.</h2>
+ <p>En un mundo lleno de amenazas digitales, Kadachi no solo te avisa del peligro: te educa y te empodera. Diseñado para instituciones, docentes, estudiantes y cualquier persona que valore su tranquilidad.</p>
+ <ul class="expo-features">
+ <li><span class="check-icon"></span> Prevención proactiva: detecta vulnerabilidades antes de que sean un problema.</li>
+ <li><span class="check-icon"></span> Cero tecnicismos: lenguaje claro y accesible para cualquier usuario.</li>
+ <li><span class="check-icon"></span> Autonomía total: la IA recomienda, tú tomas las decisiones.</li>
+ </ul>
+ <a href="#precios" class="btn-cta" style="background: var(--primary-dark); border-color: var(--primary-dark);">Quiero implementar Kadachi</a>
+ </div>
+ <div class="expo-visual">
+ <div class="mockup-app">
+ <div class="scan-line"></div>
+ <div class="mockup-header">
+ <h4>Panel de Control Kadachi</h4>
+ <span class="status">● Analizando</span>
+ </div>
+ <div class="mockup-body">
+ <div class="account-row">
+ <div class="acc-info">
+ <div class="acc-icon"></div>
+ <div><div class="acc-name">Correo Institucional</div><div class="acc-risk" style="color:#155724;">Seguro</div></div>
+ </div>
+ <div class="risk-badge risk-low">Bajo Riesgo</div>
+ </div>
+ <div class="account-row">
+ <div class="acc-info">
+ <div class="acc-icon"></div>
+ <div><div class="acc-name">Redes Sociales</div><div class="acc-risk" style="color:#856404;">Contraseña débil</div></div>
+ </div>
+ <div class="risk-badge risk-med">Atención</div>
+ </div>
+ <div class="account-row">
+ <div class="acc-info">
+ <div class="acc-icon"></div>
+ <div><div class="acc-name">Almacenamiento Nube</div><div class="acc-risk" style="color:#721c24;">Sin verificación 2FA</div></div>
+ </div>
+ <div class="risk-badge risk-high">Alto Riesgo</div>
+ </div>
+ </div>
+ </div>
+ <img src="img/verificacion.png" alt="Profesional usando Kadachi en su tablet" class="side-img" style="animation: float 7s ease-in-out infinite;">
+ </div>
+ </div>
+ </section>
+
+
+ <!-- ===== GALERÍA VISUAL ===== -->
+ <section id="galeria">
+ <h2 class="section-title">Kadachi en acción</h2>
+ <p class="gallery-intro">Una experiencia visual sencilla y moderna para representar cómo Kadachi acompaña al usuario en cada paso de su seguridad digital.</p>
+
+ <div class="visual-grid">
+ <article class="visual-card">
+ <img src="img/formulacion.png" alt="Infraestructura y seguridad digital">
+ <div class="visual-card-content">
+ <span>PROTECCIÓN DIGITAL</span>
+ <h3>Una visión más clara de tus cuentas</h3>
+ <p>Identifica prioridades y recibe recomendaciones fáciles de entender.</p>
+ </div>
+ </article>
+
+ <article class="visual-card">
+ <img src="img/placa.png" alt="Tecnología y circuitos">
+ <div class="visual-card-content">
+ <span>IA + USUARIO</span>
+ <h3>Tecnología que te guía</h3>
+ <p>La inteligencia artificial analiza; tú decides.</p>
+ </div>
+ </article>
+
+ <article class="visual-card">
+ <img src="img/seguridad.png" alt="Protección de información digital">
+ <div class="visual-card-content">
+ <span>PRIVACIDAD</span>
+ <h3>Seguridad sin complicaciones</h3>
+ <p>Información presentada de forma clara y visual.</p>
+ </div>
+ </article>
+ </div>
+
+ <div class="security-stats">
+ <div class="security-stat"><div class="stat-icon"></div><div><b>Más control</b><small>Organiza tus cuentas en un solo lugar.</small></div></div>
+ <div class="security-stat"><div class="stat-icon"></div><div><b>Más claridad</b><small>Recomendaciones sin tecnicismos.</small></div></div>
+ <div class="security-stat"><div class="stat-icon"></div><div><b>Más tranquilidad</b><small>Prioriza lo importante antes de actuar.</small></div></div>
+ </div>
+ </section>
+
+ <!-- ===== DEMO INTERACTIVO ===== -->
+ <section id="demo">
+ 
+ 
+ <h2 class="section-title"> Pruébala Tú Mismo</h2>
+ <p class="demo-subtitle">Simula el registro de una cuenta (puedes inventar los datos, no guardamos nada) y mira cómo Kadachi la analiza en segundos.</p>
+
+ <div class="demo-box">
+ <form class="demo-form" id="demoForm" onsubmit="return analizarCuenta(event)">
+ <div class="form-group full">
+ <label> Nombre de la cuenta</label>
+ <input type="text" id="accName" placeholder="Ej: Mi correo personal, Instagram, Banco..." required>
+ </div>
+ <div class="form-group">
+ <label> Tipo de cuenta</label>
+ <select id="accType">
+ <option value="social">Red Social</option>
+ <option value="correo">Correo Electrónico</option>
+ <option value="banca">Banca / Finanzas</option>
+ <option value="educativa">Plataforma Educativa</option>
+ <option value="nube">Almacenamiento en la Nube</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label> Longitud de la contraseña</label>
+ <select id="passLen">
+ <option value="corta">Corta (menos de 8 caracteres)</option>
+ <option value="media">Media (8 a 12 caracteres)</option>
+ <option value="larga">Larga (más de 12 caracteres)</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label> ¿Usa símbolos y números?</label>
+ <div class="radio-group">
+ <label><input type="radio" name="symbols" value="si" checked> Sí</label>
+ <label><input type="radio" name="symbols" value="no"> No</label>
+ </div>
+ </div>
+ <div class="form-group">
+ <label> ¿Tiene verificación en 2 pasos (2FA)?</label>
+ <div class="radio-group">
+ <label><input type="radio" name="tfa" value="si"> Sí</label>
+ <label><input type="radio" name="tfa" value="no" checked> No</label>
+ </div>
+ </div>
+ <button type="submit" class="demo-btn"> Analizar con la IA</button>
+ </form>
+
+ <div class="analysis-terminal" id="terminal"></div>
+
+ <div class="demo-result" id="result"></div>
+ </div>
+ </section>
+
+ <!-- ===== PRECIOS / COMPRA ===== -->
+ <section id="precios">
+ 
+ <h2 class="section-title"> Elige tu Plan</h2>
+ <div class="currency-selector">
+ <label for="currency"> Ver precios en mi moneda:</label>
+ <select id="currency" onchange="cambiarMoneda()">
+ <option value="USD"> USD - Dólar</option>
+ <option value="COP"> COP - Peso Colombiano</option>
+ <option value="MXN"> MXN - Peso Mexicano</option>
+ <option value="ARS"> ARS - Peso Argentino</option>
+ <option value="PEN"> PEN - Sol Peruano</option>
+ <option value="CLP"> CLP - Peso Chileno</option>
+ <option value="EUR"> EUR - Euro</option>
+ </select>
+ </div>
+
+ <div class="plans-grid">
+ <div class="plan-card">
+ <div class="plan-icon"></div>
+ <h3>Semilla</h3>
+ <div class="plan-price">
+ <span class="amount" data-price="0">Gratis</span>
+ <span class="period">Para siempre</span>
+ </div>
+ <ul class="plan-features">
+ <li> Hasta 5 cuentas registradas</li>
+ <li> Análisis básico de contraseñas</li>
+ <li> Recomendaciones generales</li>
+ <li> Acceso al chatbot de apoyo</li>
+ </ul>
+ <a href="#demo" class="plan-btn plan-btn-outline">Empezar Gratis</a>
+ </div>
+
+ <div class="plan-card featured">
+ <div class="plan-badge">⭐ MÁS POPULAR</div>
+ <div class="plan-icon"></div>
+ <h3>Escudo Personal</h3>
+ <div class="plan-price">
+ <span class="currency-code" id="curCode"></span>
+ <span class="amount" data-price="9.99" id="proPrice">$9.99</span>
+ <span class="period">al mes</span>
+ </div>
+ <ul class="plan-features">
+ <li> Cuentas ilimitadas</li>
+ <li> Análisis avanzado con IA</li>
+ <li> Alertas de prioridad de riesgo</li>
+ <li> Guías educativas interactivas</li>
+ <li> Soporte por correo en 24h</li>
+ </ul>
+ <a href="#contacto" class="plan-btn plan-btn-full">Comprar Ahora</a>
+ </div>
+
+ <div class="plan-card">
+ <div class="plan-icon"></div>
+ <h3>Institucional</h3>
+ <div class="plan-price">
+ <span class="currency-code" id="curCode2"></span>
+ <span class="amount" data-price="29.99" id="instPrice">$29.99</span>
+ <span class="period">al mes / hasta 50 usuarios</span>
+ </div>
+ <ul class="plan-features">
+ <li> Todo lo del plan Escudo</li>
+ <li> Panel para docentes y admins</li>
+ <li> Reportes de ciberseguridad</li>
+ <li> Talleres de cultura digital</li>
+ <li> Soporte prioritario</li>
+ </ul>
+ <a href="#contacto" class="plan-btn plan-btn-outline">Solicitar Info</a>
+ </div>
+ </div>
+ <p class="prices-note">* Los precios se convierten con tasas de referencia. Se ajustarán a la tasa del día al momento del pago.</p>
+ </section>
+
+ <!-- ===== VALORES ===== -->
+ <section id="valores">
+ <h2 class="section-title">Nuestros Principios</h2>
+ <div class="valores-grid">
+ <div class="valor-item">
+ <h4> Empatía y Tranquilidad</h4>
+ <p>No vendemos miedo, construimos paz mental. Ponemos las emociones y la calma del usuario en el centro.</p>
+ </div>
+ <div class="valor-item">
+ <h4> Humano al Control</h4>
+ <p>La tecnología es poderosa, pero la persona tiene el control. Damos conocimiento para tomar decisiones informadas.</p>
+ </div>
+ <div class="valor-item">
+ <h4> Evolución Continua</h4>
+ <p>Aprendemos y cambiamos con el tiempo. Nos adaptamos a las nuevas tendencias y desafíos digitales.</p>
+ </div>
+ <div class="valor-item">
+ <h4> Claridad y Transparencia</h4>
+ <p>Hacemos la seguridad fácil de entender. Hablamos de forma sencilla y honesta, sin tecnicismos complicados.</p>
+ </div>
+ </div>
+ <div class="valores-banner">
+ 
+ 
+ </div>
+ </section>
+
+ <!-- ===== FODA ===== -->
+ <section id="foda">
+ <h2 class="section-title">Transparencia Empresarial</h2>
+ <div class="foda-grid">
+ <div class="foda-card">
+ <h4 class="text-green"> Fortalezas</h4>
+ <ul>
+ <li class="text-green"><span style="color:white;margin-left:10px;">IA apoya sin reemplazar el criterio del usuario.</span></li>
+ <li class="text-green"><span style="color:white;margin-left:10px;">Equipo con conocimientos técnicos en software.</span></li>
+ <li class="text-green"><span style="color:white;margin-left:10px;">Identidad visual clara y coherente.</span></li>
+ </ul>
+ </div>
+ <div class="foda-card">
+ <h4 class="text-red"> Debilidades</h4>
+ <ul>
+ <li class="text-red"><span style="color:white;margin-left:10px;">Equipo con escasos recursos financieros.</span></li>
+ <li class="text-red"><span style="color:white;margin-left:10px;">Dependencia de proveedores externos de IA.</span></li>
+ </ul>
+ </div>
+ <div class="foda-card">
+ <h4 class="text-blue"> Oportunidades</h4>
+ <ul>
+ <li class="text-blue"><span style="color:white;margin-left:10px;">Demanda creciente de herramientas de IA.</span></li>
+ <li class="text-blue"><span style="color:white;margin-left:10px;">Integración con plataformas educativas/empresariales.</span></li>
+ <li class="text-blue"><span style="color:white;margin-left:10px;">Mercado de asistentes virtuales en expansión.</span></li>
+ </ul>
+ </div>
+ <div class="foda-card">
+ <h4 class="text-yellow"> Amenazas</h4>
+ <ul>
+ <li class="text-yellow">!<span style="color:white;margin-left:10px;">Alta competencia de IA consolidada.</span></li>
+ <li class="text-yellow">!<span style="color:white;margin-left:10px;">Cambios regulatorios sobre datos e IA.</span></li>
+ <li class="text-yellow">!<span style="color:white;margin-left:10px;">Evolución tecnológica acelerada.</span></li>
+ </ul>
+ </div>
+ </div>
+ </section>
+
+ <!-- ===== MISIÓN Y VISIÓN ===== -->
+ <section id="mision-vision">
+ <h2 class="section-title">Identidad Corporativa</h2>
+ <div class="mv-container">
+ <div class="mv-box">
+ <h3> Misión</h3>
+ <p>Brindar tranquilidad a las personas en el mundo digital. A través de la inteligencia artificial, empoderamos al usuario para que navegue sin miedo, entendiendo y protegiendo sus cuentas con una herramienta que combina seguridad inteligente y educación accesible. La IA es solo la herramienta; el héroe es el usuario.</p>
+ 
+ </div>
+ <div class="mv-box">
+ <h3> Visión</h3>
+ <p>Ser el aliado a largo plazo de confianza para millones de usuarios y organizaciones. Aspiramos a ser una empresa que se anticipa a los cambios tecnológicos del futuro sin abrumar a las personas, garantizando una evolución continua, confianza e innovación constante en cada nuevo desafío digital.</p>
+ 
+ </div>
+ </div>
+ </section>
+
+ <!-- ===== CONTACTO ===== -->
+ <section id="contacto">
+ 
+ <h2 class="section-title">¿Listo para tomar el control?</h2>
+ <p style="font-size:1.15rem; max-width:600px; margin:0 auto; opacity:0.9; position:relative; z-index:2;">Si tienes dudas, quieres implementar Kadachi en tu institución o empresa, o simplemente necesitas orientación, estamos para ayudarte.</p>
+ <div class="contact-info">
+ <div class="contact-card">
+ <span class="icon"></span>
+ <h3>Correo Electrónico</h3>
+ <p><a href="mailto:sflopezri03@inemkennedy.edu.co">sflopezri03@inemkennedy.edu.co</a></p>
+ <p><a href="mailto:difebravopu29@inemkennedy.edu.co">difebravopu29@inemkennedy.edu.co</a></p>
+ <p><a href="mailto:isacanogon04@inemkennedy.edu.co">isacanogon04@inemkennedy.edu.co</a></p>
+ </div>
+ <div class="contact-card">
+ <span class="icon"></span>
+ <h3>Número de Contacto</h3>
+ <p><a href="tel:+573017726957">+57 3017726957</a></p>
+ <p><a href="tel:+573142986512">+57 3142986512</a></p>
+ <p><a href="tel:+573125563989">+57 3125563989</a></p>
+ <p style="font-size:1rem; opacity:0.8;">Lun a Vie: 8:00 am - 6:00 pm</p>
+ </div>
+ </div>
+ </section>
+
+ <!-- ===== FOOTER ===== -->
+ <footer>
+ <div class="logo-text">
+ <h1>KADACHI</h1>
+ <p>INTELIGENCIA ARTIFICIAL</p>
+ </div>
+ <p>&copy; 2026 Kadachi. Seguridad digital, educación accesible y paz mental.</p>
+ </footer>
+
+ <!-- ===== CHATBOT ===== -->
+ <button class="chatbot-btn" onclick="toggleChat()" id="chatBtn"></button>
+ <div class="chatbot-window" id="chatWindow">
+ <div class="chat-header">
+ <img src="img/logo.png" alt="Kadachi">
+ <div class="chat-title">
+ <strong>Kadachi Assistant</strong>
+ <span>● En línea</span>
+ </div>
+ <button class="close-chat" onclick="toggleChat()"></button>
+ </div>
+ <div class="chat-body" id="chatBody"></div>
+ <div class="chat-suggestions">
+ <button onclick="enviarSugerencia('¿Qué es Kadachi?')">¿Qué es Kadachi?</button>
+ <button onclick="enviarSugerencia('Precios')">Precios</button>
+ <button onclick="enviarSugerencia('Consejos de seguridad')">Consejos</button>
+ <button onclick="enviarSugerencia('Contacto')">Contacto</button>
+ </div>
+ <div class="chat-input">
+ <input type="text" id="chatInput" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')enviarMensaje()">
+ <button onclick="enviarMensaje()"></button>
+ </div>
+ </div>
+
+ <script>
+ /* ===== MENÚ MÓVIL ===== */
+ function toggleMenu() {
+ document.getElementById('navLinks').classList.toggle('open');
+ }
+ // Cerrar menú al hacer clic en un enlace (móvil)
+ document.querySelectorAll('.nav-links a').forEach(link => {
+ link.addEventListener('click', () => {
+ document.getElementById('navLinks').classList.remove('open');
+ });
+ });
+
+ /* ===== CHATBOT ===== */
+ function toggleChat() {
+ const win = document.getElementById('chatWindow');
+ win.classList.toggle('open');
+ if (win.classList.contains('open') && !win.dataset.saludo) {
+ win.dataset.saludo = '1';
+ setTimeout(() => botReply(' ¡Hola! Soy Kadachi, tu asistente de seguridad digital.\n\nPuedo ayudarte con información sobre nuestros servicios, precios y consejos para proteger tus cuentas. ¿Qué necesitas saber?'), 400);
+ }
+ }
+
+ const respuestas = [
+ { keys: ['hola', 'buenas', 'saludos', 'hey'], text: '¡Hola! ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre precios, consejos de seguridad o qué es Kadachi.' },
+ { keys: ['que es kadachi', 'qué es kadachi', 'kadachi', 'quienes son', 'qué hacen'], text: ' Kadachi es un asistente de inteligencia artificial que te ayuda a organizar y supervisar la seguridad de tus cuentas digitales.\n\n Lo especial: la IA analiza y recomienda, pero TÚ siempre tomas las decisiones.' },
+ { keys: ['precio', 'costo', 'vale', 'cuanto', 'cuánto', 'plan', 'planes', 'comprar'], text: ' Tenemos 3 planes:\n\n Semilla: Gratis (hasta 5 cuentas)\n Escudo Personal: $9.99 USD/mes\n Institucional: $29.99 USD/mes\n\nVisita la sección "Precios" para convertir a tu moneda local. ' },
+ { keys: ['contraseña', 'password', 'clave'], text: ' Consejos para una contraseña fuerte:\n\n Más de 12 caracteres\n Combina mayúsculas, números y símbolos\n No uses tu nombre ni fecha de nacimiento\n Usa una contraseña distinta por cuenta\n\n¿Quieres probar nuestro análisis gratis en la sección "Pruébala"?' },
+ { keys: ['seguridad', 'proteger', 'consejo', 'ciberseguridad'], text: ' 3 consejos clave de Kadachi:\n\n1 Activa la verificación en 2 pasos (2FA) en todas tus cuentas importantes.\n2 Revisa cada 3 meses qué apps tienen acceso a tus datos.\n3 Si una cuenta no la usas, ciérrala: menos puertas abiertas, menos riesgos.' },
+ { keys: ['contacto', 'correo', 'email', 'telefono', 'teléfono', 'llamar'], text: ' ¡Con gusto te atendemos!\n\n contacto@kadachi.com\n +57 300 123 4567\n Lun a Vie: 8am - 6pm\n\nTambién puedes usar los datos de la sección de Contacto.' },
+ { keys: ['demo', 'prueba', 'probar', 'gratis'], text: ' ¡Perfecto! Ve a la sección "Pruébala Tú Mismo" en el menú.\n\nSimula el registro de una cuenta (puedes inventar los datos) y mira cómo la IA la analiza en segundos. ¡Es gratis y no guardamos nada!' },
+ { keys: ['2fa', 'verificacion', 'verificación', 'dos pasos'], text: ' La verificación en dos pasos (2FA) añade una capa extra de protección: además de tu contraseña, necesitas un código.\n\nEs como ponerle segunda cerradura a tu puerta. ¡Kadachi te avisa cuáles de tus cuentas no la tienen activada!' },
+ { keys: ['gracias', 'muchas gracias'], text: '¡De nada! Estoy aquí para lo que necesites. Recuerda: tú tienes el control, yo solo te guío. ' },
+ { keys: ['estudiante', 'colegio', 'institucion', 'institución', 'escuela', 'universidad'], text: ' ¡Kadachi es perfecto para instituciones educativas!\n\nNuestro Plan Institucional incluye panel para docentes, reportes de ciberseguridad y talleres de cultura digital. Escríbenos a contacto@kadachi.com para más info.' }
+ ];
+
+ function botReply(text) {
+ const body = document.getElementById('chatBody');
+ // Mostrar "escribiendo..."
+ const typing = document.createElement('div');
+ typing.className = 'msg msg-bot';
+ typing.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
+ body.appendChild(typing);
+ body.scrollTop = body.scrollHeight;
+ setTimeout(() => {
+ typing.remove();
+ const msg = document.createElement('div');
+ msg.className = 'msg msg-bot';
+ msg.textContent = text;
+ body.appendChild(msg);
+ body.scrollTop = body.scrollHeight;
+ }, 900);
+ }
+
+ function procesarMensaje(texto) {
+ const t = texto.toLowerCase();
+ for (const r of respuestas) {
+ if (r.keys.some(k => t.includes(k))) return r.text;
+ }
+ return ' Interesante pregunta. Puedo ayudarte mejor con estos temas:\n\n▪ Qué es Kadachi\n▪ Precios y planes\n▪ Consejos de seguridad\n▪ Contacto\n\n¿Cuál te interesa?';
+ }
+
+ function enviarMensaje() {
+ const input = document.getElementById('chatInput');
+ const text = input.value.trim();
+ if (!text) return;
+ const body = document.getElementById('chatBody');
+ const msg = document.createElement('div');
+ msg.className = 'msg msg-user';
+ msg.textContent = text;
+ body.appendChild(msg);
+ body.scrollTop = body.scrollHeight;
+ input.value = '';
+ botReply(procesarMensaje(text));
+ }
+
+ function enviarSugerencia(texto) {
+ const body = document.getElementById('chatBody');
+ const msg = document.createElement('div');
+ msg.className = 'msg msg-user';
+ msg.textContent = texto;
+ body.appendChild(msg);
+ body.scrollTop = body.scrollHeight;
+ botReply(procesarMensaje(texto));
+ }
+
+ /* ===== CONVERSOR DE MONEDA ===== */
+ const tasas = {
+ USD: { rate: 1, simbolo: '$', decimales: 2 },
+ COP: { rate: 4100, simbolo: '$', decimales: 0 },
+ MXN: { rate: 17.5, simbolo: '$', decimales: 2 },
+ ARS: { rate: 950, simbolo: '$', decimales: 0 },
+ PEN: { rate: 3.75, simbolo: 'S/', decimales: 2 },
+ CLP: { rate: 960, simbolo: '$', decimales: 0 },
+ EUR: { rate: 0.93, simbolo: '€', decimales: 2 }
+ };
+
+ function cambiarMoneda() {
+ const moneda = document.getElementById('currency').value;
+ const conf = tasas[moneda];
+ document.querySelectorAll('.plan-price .amount[data-price]').forEach(el => {
+ const precioUSD = parseFloat(el.dataset.price);
+ if (precioUSD === 0) {
+ el.textContent = 'Gratis';
+ } else {
+ const convertido = precioUSD * conf.rate;
+ const formateado = convertido.toLocaleString('es-CO', {
+ minimumFractionDigits: conf.decimales,
+ maximumFractionDigits: conf.decimales
+ });
+ el.textContent = conf.simbolo + ' ' + formateado;
+ }
+ });
+ document.getElementById('curCode').textContent = moneda;
+ document.getElementById('curCode2').textContent = moneda;
+ }
+ cambiarMoneda(); // Inicializar
+
+ /* ===== DEMO INTERACTIVO ===== */
+ const tipoNombres = {
+ social: 'Red Social', correo: 'Correo Electrónico', banca: 'Banca/Finanzas',
+ educativa: 'Plataforma Educativa', nube: 'Almacenamiento en la Nube'
+ };
+
+ function analizarCuenta(e) {
+ e.preventDefault();
+ const nombre = document.getElementById('accName').value || 'Tu cuenta';
+ const tipo = document.getElementById('accType').value;
+ const passLen = document.getElementById('passLen').value;
+ const symbols = document.querySelector('input[name="symbols"]:checked').value;
+ const tfa = document.querySelector('input[name="tfa"]:checked').value;
+
+ // Calcular score (0-100)
+ let score = 0;
+ if (passLen === 'corta') score += 10;
+ if (passLen === 'media') score += 35;
+ if (passLen === 'larga') score += 55;
+ if (symbols === 'si') score += 20;
+ if (tfa === 'si') score += 25;
+
+ const terminal = document.getElementById('terminal');
+ const result = document.getElementById('result');
+ result.style.display = 'none';
+ terminal.style.display = 'block';
+ terminal.innerHTML = '';
+
+ const lineas = [
+ '> Iniciando módulo de análisis Kadachi v2.0...',
+ `> Objetivo: "${nombre}" (${tipoNombres[tipo]})`,
+ '> Evaluando fortaleza de contraseña... OK',
+ '> Verificando complejidad (símbolos/números)... ' + (symbols === 'si' ? 'OK' : 'ALERTA'),
+ '> Comprobando autenticación de dos factores... ' + (tfa === 'si' ? 'OK' : 'ALERTA'),
+ '> Calculando nivel de riesgo...',
+ '> Análisis completado. Generando recomendaciones...'
+ ];
+
+ lineas.forEach((linea, i) => {
+ setTimeout(() => {
+ const p = document.createElement('p');
+ if (linea.includes('ALERTA')) p.className = 'warn';
+ p.textContent = linea;
+ terminal.appendChild(p);
+ }, i * 550);
+ });
+
+ // Mostrar resultado al final
+ setTimeout(() => {
+ terminal.style.display = 'none';
+ mostrarResultado(nombre, tipoNombres[tipo], score);
+ }, lineas.length * 550 + 600);
+
+ return false;
+ }
+
+ function mostrarResultado(nombre, tipo, score) {
+ const result = document.getElementById('result');
+ let clase, titulo, recs = [];
+
+ if (score >= 75) {
+ clase = 'score-green'; titulo = ' ¡Excelente protección!';
+ recs.push(' Tu cuenta presenta buenas prácticas de seguridad.');
+ recs.push(' Consejo: revisa esta cuenta cada 3 meses.');
+ } else if (score >= 40) {
+ clase = 'score-yellow'; titulo = ' Protección moderada';
+ recs.push(' Activa la verificación en dos pasos (2FA) cuanto antes.');
+ recs.push(' Aumenta la longitud de tu contraseña a más de 12 caracteres.');
+ recs.push(' Evita reutilizar esta contraseña en otras cuentas.');
+ } else {
+ clase = 'score-red'; titulo = ' Atención prioritaria';
+ recs.push(' Esta cuenta es vulnerable: cámbia la contraseña HOY.');
+ recs.push(' Crea una contraseña larga (12+ caracteres) con símbolos y números.');
+ recs.push(' Activa la verificación en dos pasos inmediatamente.');
+ recs.push(' Revisa si hay inicios de sesión sospechosos.');
+ }
+ recs.push(' Recuerda: Kadachi solo recomienda. TÚ decides qué aplicar.');
+
+ result.innerHTML = `
+ <div class="score-circle ${clase}">
+ ${score}<small>/100</small>
+ </div>
+ <h3>${titulo}</h3>
+ <p style="opacity:0.85; margin-bottom:15px;">Resultado del análisis de <strong>"${nombre}"</strong> (${tipo}):</p>
+ <ul class="rec-list">
+ ${recs.map(r => `<li>${r}</li>`).join('')}
+ </ul>
+ <button class="demo-reset" onclick="resetDemo()"> Analizar otra cuenta</button>
+ `;
+ result.style.display = 'block';
+ }
+
+ function resetDemo() {
+ document.getElementById('demoForm').reset();
+ document.getElementById('result').style.display = 'none';
+ document.getElementById('terminal').style.display = 'none';
+ window.scrollTo({ top: document.getElementById('demo').offsetTop, behavior: 'smooth' });
+ }
+ </script>
+
+</body>
+</html>
